@@ -15,6 +15,4 @@ echo -e "AIRFLOW_UID=$(id -u)" > .env
 
 Connect to webserver
 --------------------
-```
-http://localhost:8080
-```
+- `localhost:8080`

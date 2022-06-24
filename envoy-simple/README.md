@@ -9,11 +9,8 @@ Powered by ...
 
 Connect admin
 -------------
-```
-http://localhost:9901
-```
+- `localhost:9901`
+
 Test connection
 ---------------
-```
-http://localhost:10000
-```
+- `localhost:10000`

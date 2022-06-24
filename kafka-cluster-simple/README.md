@@ -21,6 +21,4 @@ Connect Zookeeper
 
 Connect ZooNavigator
 --------------------
-```
-localhost:9000
-```
+- `localhost:9000`
