@@ -1,0 +1,89 @@
+---
+x-zookeeper-common: &zookeeper-common
+  image: 'zookeeper:3.8.0'
+  restart: always
+  environment: &zookeeper-env
+    ZOO_SERVERS: server.1=zookeeper-1:2888:3888;2181 server.2=zookeeper-2:2888:3888;2181 server.3=zookeeper-3:2888:3888;2181
+    ZOO_4LW_COMMANDS_WHITELIST: 'ruok, conf, envi, stat, srvr'
+
+x-kafka-common: &kafka-common
+  image: 'confluentinc/cp-kafka:6.2.4'
+  depends_on:
+    - zookeeper-1
+    - zookeeper-2
+    - zookeeper-3
+  environment: &kafka-env
+    KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181/kafka
+
+services:
+  zookeeper-1:
+    <<: *zookeeper-common
+    container_name: zookeeper-1
+    ports:
+      - 2181:2181
+    environment:
+      <<: *zookeeper-env
+      ZOO_MY_ID: 1
+
+  zookeeper-2:
+    <<: *zookeeper-common
+    container_name: zookeeper-2
+    ports:
+      - 2182:2181
+    environment:
+      <<: *zookeeper-env
+      ZOO_MY_ID: 2
+
+  zookeeper-3:
+    <<: *zookeeper-common
+    container_name: zookeeper-3
+    ports:
+      - 2183:2181
+    environment:
+      <<: *zookeeper-env
+      ZOO_MY_ID: 3
+
+  zoonavigator:
+    container_name: zoonavigator
+    image: 'elkozmon/zoonavigator:1.1.2'
+    restart: unless-stopped
+    ports:
+      - 9000:9000
+    environment:
+      HTTP_PORT: 9000
+      CONNECTION_LOCALZK_NAME: 'Local ZooKeeper'
+      CONNECTION_LOCALZK_CONN: zookeeper-1:2181
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+
+  kafka-1:
+    <<: *kafka-common
+    container_name: kafka-1
+    ports:
+      - 9092:9092
+    environment:
+      <<: *kafka-env
+      KAFKA_BROKER_ID: 1
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
+
+  kafka-2:
+    <<: *kafka-common
+    container_name: kafka-2
+    ports:
+      - 9093:9092
+    environment:
+      <<: *kafka-env
+      KAFKA_BROKER_ID: 2
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:9092
+
+  kafka-3:
+    <<: *kafka-common
+    container_name: kafka-3
+    ports:
+      - 9094:9092
+    environment:
+      <<: *kafka-env
+      KAFKA_BROKER_ID: 3
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:9092

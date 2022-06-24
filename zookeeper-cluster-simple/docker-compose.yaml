@@ -1,0 +1,50 @@
+---
+x-zookeeper-common: &zookeeper-common
+  image: 'zookeeper:3.8.0'
+  restart: always
+  environment: &zookeeper-env
+    ZOO_SERVERS: server.1=zookeeper-1:2888:3888;2181 server.2=zookeeper-2:2888:3888;2181 server.3=zookeeper-3:2888:3888;2181
+    ZOO_4LW_COMMANDS_WHITELIST: 'ruok, conf, envi, stat, srvr'
+
+services:
+  zookeeper-1:
+    <<: *zookeeper-common
+    container_name: zookeeper-1
+    ports:
+      - 2181:2181
+    environment:
+      <<: *zookeeper-env
+      ZOO_MY_ID: 1
+
+  zookeeper-2:
+    <<: *zookeeper-common
+    container_name: zookeeper-2
+    ports:
+      - 2182:2181
+    environment:
+      <<: *zookeeper-env
+      ZOO_MY_ID: 2
+
+  zookeeper-3:
+    <<: *zookeeper-common
+    container_name: zookeeper-3
+    ports:
+      - 2183:2181
+    environment:
+      <<: *zookeeper-env
+      ZOO_MY_ID: 3
+
+  zoonavigator:
+    container_name: zoonavigator
+    image: 'elkozmon/zoonavigator:1.1.2'
+    restart: unless-stopped
+    ports:
+      - 9000:9000
+    environment:
+      HTTP_PORT: 9000
+      CONNECTION_LOCALZK_NAME: 'Local ZooKeeper'
+      CONNECTION_LOCALZK_CONN: zookeeper-1:2181
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3

@@ -1,0 +1,9 @@
+---
+services:
+  envoy:
+    container_name: envoy
+    image: envoyproxy/envoy:v1.22.2
+    ports:
+      - 9901:9901 # admin
+      - 10000:10000 # proxy test
+    restart: always
