@@ -1,0 +1,40 @@
+---
+x-all-common: &all-common
+  networks:
+    - simple-nginx-lb
+
+x-express-app-common: &express-app-common
+  build: .
+  image: express-app
+
+services:
+  express-app-1:
+    <<: *all-common
+    <<: *express-app-common
+    container_name: express-app-1
+    environment:
+      - APP_NAME=express-app-1
+  express-app-2:
+    <<: *all-common
+    <<: *express-app-common
+    container_name: express-app-2
+    environment:
+      - APP_NAME=express-app-2
+  express-app-3:
+    <<: *all-common
+    <<: *express-app-common
+    container_name: express-app-3
+    environment:
+      - APP_NAME=express-app-3
+  nginx-lb:
+    <<: *all-common
+    container_name: nginx-lb
+    image: nginx:1.22.0-alpine
+    ports:
+      - 3000:3000
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+
+networks:
+  simple-nginx-lb:
+    driver: bridge
